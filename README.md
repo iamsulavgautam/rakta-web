@@ -1,73 +1,147 @@
-# Welcome to your Lovable project
+---
 
-## Project info
+# 🩸 Rakta Blood Donation Admin Panel
 
-**URL**: https://lovable.dev/projects/4e2c90fd-6d02-4876-96a0-ad1f8417713b
+![Rakta Admin Banner](./adminDashboard.png)
 
-## How can I edit this code?
 
-There are several ways of editing your application.
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/4e2c90fd-6d02-4876-96a0-ad1f8417713b) and start prompting.
+<div align="center">
+  <strong>Admin dashboard to manage blood donors, send urgent SMS alerts, and organize blood donation effectively.</strong>  
+</div>
 
-Changes made via Lovable will be committed automatically to this repo.
+---
 
-**Use your preferred IDE**
+## 📸 Preview
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+|             Dashboard              |           Donor List           |           Eligible Donors            |
+| :--------------------------------: | :----------------------------: | :----------------------------------: |
+| ![Dashboard](./adminDashboard.png) | ![Donor List](./donorList.png) | ![Eligible List](./eligibleList.png) |
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+---
 
-Follow these steps:
+## ✨ Features
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+- 📋 **Manage Donors**: Add, edit, or remove donors.
+- 🔎 **Filter Easily**: Search by blood group, province, district, and municipality.
+- 📂 **CSV Upload**: Import donors in bulk via a CSV file.
+- 💬 **SMS Alerts**: Message filtered donors via Sparrow SMS / Twilio.
+- 📈 **Live Dashboard**: See donor counts, latest activity.
+- 📱 **Fully Responsive**: Mobile and desktop friendly.
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+---
 
-# Step 3: Install the necessary dependencies.
-npm i
+## 🛠️ Tech Stack
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+| Technology               | Purpose                       |
+| ------------------------ | ----------------------------- |
+| **Next.js**              | React framework for frontend  |
+| **TailwindCSS**          | UI styling and responsiveness |
+| **Supabase**             | Authentication and database   |
+| **Twilio / Sparrow SMS** | SMS gateway integrations      |
+
+---
+
+## 🚀 Getting Started
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/iamsulavgautam/rakta-admin-panel.git
+cd rakta-admin-panel
 ```
 
-**Edit a file directly in GitHub**
+### 2. Install Dependencies
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```bash
+npm install
+# or
+yarn install
+```
 
-**Use GitHub Codespaces**
+### 3. Configure Environment Variables
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Create a `.env.local` file:
 
-## What technologies are used for this project?
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
-This project is built with:
+TWILIO_ACCOUNT_SID=your_twilio_account_sid
+TWILIO_AUTH_TOKEN=your_twilio_auth_token
+TWILIO_SERVICE_SID=your_twilio_service_sid
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+SPARROW_API_KEY=your_sparrow_api_key
+```
 
-## How can I deploy this project?
+### 4. Run Locally
 
-Simply open [Lovable](https://lovable.dev/projects/4e2c90fd-6d02-4876-96a0-ad1f8417713b) and click on Share -> Publish.
+```bash
+npm run dev
+# or
+yarn dev
+```
 
-## Can I connect a custom domain to my Lovable project?
+Visit `http://localhost:3000` to see the app in action 🚀
 
-Yes, you can!
+---
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 📜 CSV Upload Format
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Ensure your CSV has the following headers:
+
+```csv
+name,blood_group,phone,province,district,municipality
+```
+
+Example:
+
+```csv
+Sulav Gautam,A+,9800000000,Province 5,Dang,Ghorahi
+Anish Thapa,B-,9811111111,Province 3,Kathmandu,Kirtipur
+```
+
+✅ Correct formatting = Successful bulk import!
+
+---
+
+## 💬 SMS Functionality
+
+- SMS sending requires selected filters (blood group, location).
+- Messages are routed through Twilio or Sparrow based on setup.
+- Instant communication with eligible donors 🚑
+
+---
+
+## 📈 Dashboard Overview
+
+- View total donors
+- Monitor latest added entries
+- Quick action buttons for sending mass SMS
+
+---
+
+## 🧠 Future Enhancements (Planned)
+
+- 🗓️ Add **last donated date** for donors
+- 🚦 **Eligibility logic** (90-day donation gap enforcement)
+- 📄 **SMS templates** for frequent use
+- 🔒 **Admin roles** and **access levels**
+
+---
+
+## 🤝 Acknowledgements
+
+- ❤️ **Supabase** — for simplifying backend work
+- ❤️ **Twilio** and **Sparrow SMS** — for enabling SMS services
+- ❤️ All **voluntary donors** — saving lives!
+
+---
+
+<div align="center">
+  <strong>Made by Sulav Gautam</strong>
+</div>
+
+---

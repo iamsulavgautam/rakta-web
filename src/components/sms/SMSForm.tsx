@@ -1,9 +1,5 @@
-
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from '@/components/ui/button';
+import React, { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -11,20 +7,11 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/components/ui/use-toast';
-import { DonorFilters } from '@/types';
-import { sendSMSToFilteredDonors } from '@/services/smsService';
+} from "@/components/ui/card";
+import { useToast } from "@/components/ui/use-toast";
+import { DonorFilters } from "@/types";
+import { sendSMSToFilteredDonors } from "@/services/smsService";
+import { Textarea } from "@/components/ui/textarea";
 
 interface SMSFormProps {
   filters: DonorFilters;
@@ -32,67 +19,90 @@ interface SMSFormProps {
   onSendSuccess?: (count: number) => void;
 }
 
-const formSchema = z.object({
-  message: z.string()
-    .min(5, { message: 'Message must be at least 5 characters long' })
-    .max(160, { message: 'Message cannot exceed 160 characters for SMS' }),
-});
+const adminInfo = {
+  orgName: "Rakta Organization",
+  phone: "+9779761780429",
+};
 
-type FormValues = z.infer<typeof formSchema>;
-
-export default function SMSForm({ 
-  filters, 
-  recipientCount, 
-  onSendSuccess 
+export default function SMSForm({
+  filters,
+  recipientCount,
+  onSendSuccess,
 }: SMSFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const [generatedMessage, setGeneratedMessage] = useState("");
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      message: '',
-    },
-  });
+  const isReadyToSend =
+    filters.blood_group &&
+    filters.blood_group !== "all" &&
+    filters.province &&
+    filters.province !== "all" &&
+    filters.district &&
+    filters.district !== "all" &&
+    filters.municipality &&
+    filters.municipality !== "all";
 
-  const onSubmit = async (data: FormValues) => {
+  useEffect(() => {
+    if (!isReadyToSend) {
+      setGeneratedMessage("");
+      return;
+    }
+
+    const bloodGroup = filters.blood_group;
+    const location = `${filters.municipality}, ${filters.district}, ${filters.province}`;
+
+    const message = `[${adminInfo.orgName}]
+Urgent Requirement: ${bloodGroup} blood needed at ${location}.
+Please contact us at ${adminInfo.phone}.`;
+
+    setGeneratedMessage(message);
+  }, [filters, isReadyToSend]);
+
+  const onSubmit = async () => {
     if (recipientCount === 0) {
       toast({
-        title: 'No Recipients',
-        description: 'Please select filters that include at least one donor.',
-        variant: 'destructive',
+        title: "No Recipients",
+        description: "Please select filters that include at least one donor.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!isReadyToSend) {
+      toast({
+        title: "Incomplete Filter",
+        description:
+          "Please select Blood Group, Province, District and Municipality before sending.",
+        variant: "destructive",
       });
       return;
     }
 
     setIsLoading(true);
     try {
-      const result = await sendSMSToFilteredDonors(filters, data.message);
-      
+      const result = await sendSMSToFilteredDonors(filters, generatedMessage);
+
       if (result.success) {
         toast({
-          title: 'SMS Sent Successfully',
+          title: "SMS Sent Successfully",
           description: `${result.count} messages have been sent to donors.`,
         });
-        
-        form.reset();
-        
-        if (onSendSuccess) {
-          onSendSuccess(result.count);
-        }
+        if (onSendSuccess) onSendSuccess(result.count);
       } else {
         toast({
-          title: 'SMS Sending Failed',
-          description: result.errors?.map(e => e.error).join(', ') || 'Unknown error',
-          variant: 'destructive',
+          title: "SMS Sending Failed",
+          description:
+            result.errors?.map((e) => e.error).join(", ") || "Unknown error",
+          variant: "destructive",
         });
       }
     } catch (error) {
-      console.error('Error sending SMS:', error);
+      console.error("Error sending SMS:", error);
       toast({
-        title: 'SMS Sending Failed',
-        description: (error as Error).message || 'An unexpected error occurred',
-        variant: 'destructive',
+        title: "SMS Sending Failed",
+        description: (error as Error).message || "An unexpected error occurred",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -104,45 +114,35 @@ export default function SMSForm({
       <CardHeader>
         <CardTitle>Send SMS</CardTitle>
         <CardDescription>
-          Compose a message to send to {recipientCount} donor{recipientCount !== 1 ? 's' : ''}
+          Auto-generated message for {recipientCount} donor
+          {recipientCount !== 1 ? "s" : ""}
         </CardDescription>
       </CardHeader>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <CardContent>
-            <FormField
-              control={form.control}
-              name="message"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Message</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Type your SMS message here..." 
-                      className="min-h-[120px]" 
-                      {...field}
-                      disabled={isLoading}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Characters: {field.value.length}/160
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </CardContent>
-          <CardFooter>
-            <Button 
-              type="submit" 
-              className="bg-rakta-600 hover:bg-rakta-700"
-              disabled={isLoading || recipientCount === 0}
-            >
-              {isLoading ? 'Sending...' : `Send to ${recipientCount} Recipient${recipientCount !== 1 ? 's' : ''}`}
-            </Button>
-          </CardFooter>
-        </form>
-      </Form>
+      <CardContent>
+        <Textarea
+          value={generatedMessage}
+          disabled
+          className="min-h-[120px] bg-gray-100 cursor-not-allowed"
+          placeholder="Select Blood Group, Province, District and Municipality first."
+        />
+        <p className="text-right text-xs mt-2">
+          {generatedMessage.length}/160 characters
+        </p>
+      </CardContent>
+      <CardFooter>
+        <Button
+          type="button"
+          className="bg-rakta-600 hover:bg-rakta-700"
+          disabled={isLoading || recipientCount === 0 || !isReadyToSend}
+          onClick={onSubmit}
+        >
+          {isLoading
+            ? "Sending..."
+            : `Send to ${recipientCount} Recipient${
+                recipientCount !== 1 ? "s" : ""
+              }`}
+        </Button>
+      </CardFooter>
     </Card>
   );
 }

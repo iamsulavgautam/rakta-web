@@ -22,10 +22,10 @@ export default function DonorFilters({
   isLoading = false,
 }: DonorFiltersProps) {
   const [filters, setFilters] = useState<DonorFiltersType>({
-    blood_group: "all",
-    province: "all",
-    district: "all",
-    municipality: "all",
+    blood_group: "",
+    province: "",
+    district: "",
+    municipality: "",
   });
 
   const [bloodGroups, setBloodGroups] = useState<string[]>([]);
@@ -57,7 +57,7 @@ export default function DonorFilters({
 
   useEffect(() => {
     const fetchDistricts = async () => {
-      if (filters.province !== "all") {
+      if (filters.province) {
         try {
           const fetchedDistricts = await getUniqueValues("district", {
             province: filters.province,
@@ -70,21 +70,20 @@ export default function DonorFilters({
       } else {
         setDistricts([]);
       }
-    };
 
+      setFilters((prev) => ({
+        ...prev,
+        district: "",
+        municipality: "",
+      }));
+      setMunicipalities([]);
+    };
     fetchDistricts();
-    // When province changes, reset district and municipality
-    setFilters((prev) => ({
-      ...prev,
-      district: "all",
-      municipality: "all",
-    }));
-    setMunicipalities([]);
   }, [filters.province]);
 
   useEffect(() => {
     const fetchMunicipalities = async () => {
-      if (filters.district !== "all") {
+      if (filters.district) {
         try {
           const fetchedMunicipalities = await getUniqueValues("municipality", {
             district: filters.district,
@@ -97,24 +96,23 @@ export default function DonorFilters({
       } else {
         setMunicipalities([]);
       }
-    };
 
+      setFilters((prev) => ({
+        ...prev,
+        municipality: "",
+      }));
+    };
     fetchMunicipalities();
-    // When district changes, reset municipality
-    setFilters((prev) => ({
-      ...prev,
-      municipality: "all",
-    }));
   }, [filters.district]);
 
+  // Update parent component
   useEffect(() => {
     const filtered: DonorFiltersType = {};
-    if (filters.blood_group !== "all")
-      filtered.blood_group = filters.blood_group;
-    if (filters.province !== "all") filtered.province = filters.province;
-    if (filters.district !== "all") filtered.district = filters.district;
-    if (filters.municipality !== "all")
-      filtered.municipality = filters.municipality;
+    if (filters.blood_group) filtered.blood_group = filters.blood_group;
+    if (filters.province) filtered.province = filters.province;
+    if (filters.district) filtered.district = filters.district;
+    if (filters.municipality) filtered.municipality = filters.municipality;
+
     onFilterChange(filtered);
   }, [filters, onFilterChange]);
 
@@ -127,16 +125,16 @@ export default function DonorFilters({
 
   const clearFilters = () => {
     setFilters({
-      blood_group: "all",
-      province: "all",
-      district: "all",
-      municipality: "all",
+      blood_group: "",
+      province: "",
+      district: "",
+      municipality: "",
     });
     setDistricts([]);
     setMunicipalities([]);
   };
 
-  const hasFilters = Object.values(filters).some((v) => v !== "all");
+  const hasFilters = Object.values(filters).some((v) => v !== "");
 
   return (
     <Card>
@@ -156,7 +154,6 @@ export default function DonorFilters({
                 <SelectValue placeholder="Select Blood Group" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Blood Groups</SelectItem>
                 {bloodGroups.map((group) => (
                   <SelectItem key={group} value={group}>
                     {group}
@@ -180,7 +177,6 @@ export default function DonorFilters({
                 <SelectValue placeholder="Select Province" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Provinces</SelectItem>
                 {provinces.map((province) => (
                   <SelectItem key={province} value={province}>
                     {province}
@@ -198,13 +194,12 @@ export default function DonorFilters({
             <Select
               value={filters.district}
               onValueChange={(val) => handleFilterChange("district", val)}
-              disabled={loading || isLoading || filters.province === "all"}
+              disabled={loading || isLoading || !filters.province}
             >
               <SelectTrigger className="w-full md:w-[180px]">
                 <SelectValue placeholder="Select District" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Districts</SelectItem>
                 {districts.map((district) => (
                   <SelectItem key={district} value={district}>
                     {district}
@@ -222,13 +217,12 @@ export default function DonorFilters({
             <Select
               value={filters.municipality}
               onValueChange={(val) => handleFilterChange("municipality", val)}
-              disabled={loading || isLoading || filters.district === "all"}
+              disabled={loading || isLoading || !filters.district}
             >
               <SelectTrigger className="w-full md:w-[180px]">
                 <SelectValue placeholder="Select Municipality" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Municipalities</SelectItem>
                 {municipalities.map((municipality) => (
                   <SelectItem key={municipality} value={municipality}>
                     {municipality}

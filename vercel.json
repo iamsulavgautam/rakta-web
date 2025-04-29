@@ -1,8 +1,14 @@
 {
-  "rewrites": [
+  "version": 2,
+  "functions": {
+    "api/send-sms.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "routes": [
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "/api/send-sms",
+      "dest": "/api/send-sms.js"
     }
   ]
 }

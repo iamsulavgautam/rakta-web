@@ -1,6 +1,5 @@
-
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { Link } from "react-router-dom";
 import {
   Table,
   TableBody,
@@ -8,17 +7,17 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Donor } from '@/types';
-import { format } from 'date-fns';
-import { Edit, MoreHorizontal, Trash } from 'lucide-react';
+} from "@/components/ui/dropdown-menu";
+import { Donor } from "@/types";
+import { format } from "date-fns";
+import { Edit, MoreHorizontal, Trash } from "lucide-react";
 
 interface DonorsListProps {
   donors: Donor[];
@@ -26,7 +25,11 @@ interface DonorsListProps {
   onDeleteDonor?: (donorId: string) => void;
 }
 
-export default function DonorsList({ donors, isLoading = false, onDeleteDonor }: DonorsListProps) {
+export default function DonorsList({
+  donors,
+  isLoading = false,
+  onDeleteDonor,
+}: DonorsListProps) {
   return (
     <div className="rounded-md border">
       <Table>
@@ -49,7 +52,7 @@ export default function DonorsList({ donors, isLoading = false, onDeleteDonor }:
                 Loading donors...
               </TableCell>
             </TableRow>
-          ) : donors.length === 0 ? (
+          ) : !donors || donors.length === 0 ? (
             <TableRow>
               <TableCell colSpan={8} className="text-center h-32">
                 No donors found. Add a new donor to get started.
@@ -58,17 +61,23 @@ export default function DonorsList({ donors, isLoading = false, onDeleteDonor }:
           ) : (
             donors.map((donor) => (
               <TableRow key={donor.id}>
-                <TableCell className="font-medium">{donor.name}</TableCell>
+                <TableCell className="font-medium">
+                  {donor?.name || "—"}
+                </TableCell>
                 <TableCell>
                   <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-md bg-rakta-100 text-rakta-800">
-                    {donor.blood_group}
+                    {donor?.blood_group || "-"}
                   </span>
                 </TableCell>
-                <TableCell>{donor.phone}</TableCell>
-                <TableCell>{donor.province}</TableCell>
-                <TableCell>{donor.district}</TableCell>
-                <TableCell>{donor.municipality}</TableCell>
-                <TableCell>{format(new Date(donor.created_at), 'MMM d, yyyy')}</TableCell>
+                <TableCell>{donor?.phone || "-"}</TableCell>
+                <TableCell>{donor?.province || "-"}</TableCell>
+                <TableCell>{donor?.district || "-"}</TableCell>
+                <TableCell>{donor?.municipality || "-"}</TableCell>
+                <TableCell>
+                  {donor?.created_at
+                    ? format(new Date(donor.created_at), "MMM d, yyyy")
+                    : "—"}
+                </TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>

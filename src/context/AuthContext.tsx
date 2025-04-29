@@ -1,8 +1,13 @@
-
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/lib/supabase';
-import { useToast } from '@/components/ui/use-toast';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/lib/supabase";
+import { useToast } from "@/components/ui/use-toast";
 
 interface User {
   id: string;
@@ -28,41 +33,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const initAuth = async () => {
       try {
         setLoading(true);
-        
+
         // Check for active session
-        const { data: { session } } = await supabase.auth.getSession();
-        
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
         if (session?.user) {
           setUser({
             id: session.user.id,
-            email: session.user.email || '',
+            email: session.user.email || "",
           });
+        } else {
+          setUser(null);
         }
-
-        // Set up auth listener
-        const { data: { subscription } } = await supabase.auth.onAuthStateChange(
-          (event, session) => {
-            if (session?.user) {
-              setUser({
-                id: session.user.id,
-                email: session.user.email || '',
-              });
-            } else {
-              setUser(null);
-              navigate('/login');
-            }
-          }
-        );
-
-        return () => {
-          subscription.unsubscribe();
-        };
       } catch (error) {
-        console.error('Auth error:', error);
+        console.error("Auth error:", error);
         toast({
-          title: 'Authentication Error',
-          description: 'There was a problem with authentication.',
-          variant: 'destructive',
+          title: "Authentication Error",
+          description: "There was a problem with authentication.",
+          variant: "destructive",
         });
       } finally {
         setLoading(false);
@@ -70,6 +60,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     initAuth();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setUser({
+          id: session.user.id,
+          email: session.user.email || "",
+        });
+      } else {
+        setUser(null);
+        navigate("/login");
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [navigate, toast]);
 
   const signIn = async (email: string, password: string) => {
@@ -80,19 +88,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       if (error) throw error;
-      
+
       toast({
-        title: 'Welcome back',
-        description: 'You have successfully signed in.',
+        title: "Welcome back",
+        description: "You have successfully signed in.",
       });
-      
-      navigate('/');
+
+      navigate("/");
     } catch (error: any) {
-      console.error('Login error:', error);
+      console.error("Login error:", error);
       toast({
-        title: 'Login Failed',
-        description: error.message || 'Failed to sign in. Please check your credentials.',
-        variant: 'destructive',
+        title: "Login Failed",
+        description:
+          error.message || "Failed to sign in. Please check your credentials.",
+        variant: "destructive",
       });
     }
   };
@@ -101,16 +110,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await supabase.auth.signOut();
       toast({
-        title: 'Signed out',
-        description: 'You have been successfully signed out.',
+        title: "Signed out",
+        description: "You have been successfully signed out.",
       });
-      navigate('/login');
+      navigate("/login");
     } catch (error: any) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
       toast({
-        title: 'Error',
-        description: 'There was a problem signing out.',
-        variant: 'destructive',
+        title: "Error",
+        description: "There was a problem signing out.",
+        variant: "destructive",
       });
     }
   };
@@ -125,7 +134,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

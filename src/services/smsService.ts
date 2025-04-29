@@ -1,11 +1,11 @@
-import { DonorFilters } from '@/types';
-import { fetchDonors } from './donorService';
+import { DonorFilters } from "@/types";
+import { fetchDonors } from "./donorService";
 
 // Twilio credentials
-const TWILIO_SERVICE_SID = 'VA1444f9308d2fe3f9a3834d4e2e67f372';
-const TWILIO_ACCOUNT_SID = 'AC6262dc992fa3a49bca74716a53414e57';
-const TWILIO_AUTH_TOKEN = 'bcfc69b77567a13d757ba7c636b4a47f';
-const TWILIO_BASE_URL = 'https://api.twilio.com/2010-04-01';
+const TWILIO_SERVICE_SID = "VA1444f9308d2fe3f9a3834d4e2e67f372";
+const TWILIO_ACCOUNT_SID = "AC6262dc992fa3a49bca74716a53414e57";
+const TWILIO_AUTH_TOKEN = "bcfc69b77567a13d757ba7c636b4a47f";
+const TWILIO_BASE_URL = "https://api.twilio.com/2010-04-01";
 
 // In a real application, these credentials would be stored in environment variables
 // and the API calls would be made from a secure server-side endpoint
@@ -35,17 +35,17 @@ export const sendSMS = async (
     for (const phoneNumber of phoneNumbers) {
       try {
         const formData = new URLSearchParams();
-        formData.append('To', phoneNumber);
-        formData.append('From', '+15551234567'); // Replace with your Twilio phone number
-        formData.append('Body', message);
+        formData.append("To", phoneNumber);
+        formData.append("From", "+1 234 230 5400"); // Replace with your Twilio phone number
+        formData.append("Body", message);
 
         const response = await fetch(
           `${TWILIO_BASE_URL}/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`,
           {
-            method: 'POST',
+            method: "POST",
             headers: {
-              'Authorization': `Basic ${authToken}`,
-              'Content-Type': 'application/x-www-form-urlencoded',
+              Authorization: `Basic ${authToken}`,
+              "Content-Type": "application/x-www-form-urlencoded",
             },
             body: formData,
           }
@@ -56,7 +56,10 @@ export const sendSMS = async (
         if (data.sid) {
           successCount++;
         } else {
-          errors.push({ phoneNumber, error: data.message || 'Failed to send SMS' });
+          errors.push({
+            phoneNumber,
+            error: data.message || "Failed to send SMS",
+          });
         }
       } catch (error) {
         errors.push({ phoneNumber, error: (error as Error).message });
@@ -72,7 +75,7 @@ export const sendSMS = async (
       errors: errors.length > 0 ? errors : undefined,
     };
   } catch (error) {
-    console.error('Error sending SMS:', error);
+    console.error("Error sending SMS:", error);
     return {
       success: false,
       count: 0,
@@ -88,14 +91,14 @@ export const sendSMSToFilteredDonors = async (
   try {
     // Fetch donors based on filters
     const donors = await fetchDonors(filters);
-    
+
     // Extract phone numbers
-    const phoneNumbers = donors.map(donor => donor.phone);
-    
+    const phoneNumbers = donors.map((donor) => donor.phone);
+
     // Send SMS to all phone numbers
     return await sendSMS(phoneNumbers, message);
   } catch (error) {
-    console.error('Error sending SMS to filtered donors:', error);
+    console.error("Error sending SMS to filtered donors:", error);
     return {
       success: false,
       count: 0,

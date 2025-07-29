@@ -1,10 +1,11 @@
 import { DonorFilters } from "@/types";
 import { fetchDonors } from "./donorService";
 
-// Twilio credentials
-const TWILIO_SERVICE_SID = "VA1444f9308d2fe3f9a3834d4e2e67f372";
-const TWILIO_ACCOUNT_SID = "AC6262dc992fa3a49bca74716a53414e57";
-const TWILIO_AUTH_TOKEN = "bcfc69b77567a13d757ba7c636b4a47f";
+// Twilio credentials from environment variables
+const TWILIO_SERVICE_SID = import.meta.env.VITE_TWILIO_SERVICE_SID;
+const TWILIO_ACCOUNT_SID = import.meta.env.VITE_TWILIO_ACCOUNT_SID;
+const TWILIO_AUTH_TOKEN = import.meta.env.VITE_TWILIO_AUTH_TOKEN;
+const TWILIO_PHONE_NUMBER = import.meta.env.VITE_TWILIO_PHONE_NUMBER;
 const TWILIO_BASE_URL = "https://api.twilio.com/2010-04-01";
 
 // In a real application, these credentials would be stored in environment variables
@@ -21,6 +22,16 @@ export const sendSMS = async (
   message: string
 ): Promise<SMSResponse> => {
   try {
+    // Validate that all required environment variables are present
+    if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN || !TWILIO_PHONE_NUMBER) {
+      console.error("Missing Twilio environment variables");
+      return {
+        success: false,
+        count: 0,
+        errors: [{ error: "Twilio configuration is incomplete. Please check your environment variables." }],
+      };
+    }
+
     // In a real application, this would be handled server-side
     // This is a simplified version for demonstration purposes
 
@@ -36,7 +47,7 @@ export const sendSMS = async (
       try {
         const formData = new URLSearchParams();
         formData.append("To", phoneNumber);
-        formData.append("From", "+1 234 230 5400"); // Replace with your Twilio phone number
+        formData.append("From", TWILIO_PHONE_NUMBER); // Use environment variable
         formData.append("Body", message);
 
         const response = await fetch(

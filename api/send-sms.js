@@ -13,9 +13,18 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method Not Allowed" });
   }
 
-  const accountSid = "AC6262dc992fa3a49bca74716a53414e57";
-  const authToken = "bcfc69b77567a13d757ba7c636b4a47f";
-  const fromPhone = "+12342305400";
+  // Get Twilio credentials from environment variables
+  const accountSid = process.env.TWILIO_ACCOUNT_SID;
+  const authToken = process.env.TWILIO_AUTH_TOKEN;
+  const fromPhone = process.env.TWILIO_PHONE_NUMBER;
+
+  // Validate that all required environment variables are present
+  if (!accountSid || !authToken || !fromPhone) {
+    console.error("Missing Twilio environment variables");
+    return res.status(500).json({ 
+      error: "Server configuration error - missing Twilio credentials" 
+    });
+  }
 
   const { to, message } = req.body;
 

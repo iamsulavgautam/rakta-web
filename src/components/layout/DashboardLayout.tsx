@@ -8,6 +8,7 @@ import {
   ChevronLeft, 
   ChevronRight, 
   DropletIcon, 
+  Heart,
   HomeIcon, 
   LogOut, 
   Menu, 
@@ -32,6 +33,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const navItems = [
     { name: 'Dashboard', icon: <HomeIcon className="h-5 w-5" />, path: '/' },
     { name: 'Donors', icon: <Users className="h-5 w-5" />, path: '/donors' },
+    { name: 'Donated Individuals', icon: <Heart className="h-5 w-5" />, path: '/donated-individuals' },
     { name: 'Blood Groups', icon: <DropletIcon className="h-5 w-5" />, path: '/blood-groups' },
     { name: 'Campaigns', icon: <Calendar className="h-5 w-5" />, path: '/campaigns' },
     { name: 'Messages', icon: <MessageCircle className="h-5 w-5" />, path: '/messages' },

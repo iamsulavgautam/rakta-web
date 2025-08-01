@@ -12,6 +12,7 @@ import Login from "./pages/Login";
 import Donors from "./pages/Donors";
 import AddDonor from "./pages/AddDonor";
 import EditDonor from "./pages/EditDonor";
+import DonatedIndividuals from "./pages/DonatedIndividuals";
 import BloodGroups from "./pages/BloodGroups";
 import Campaigns from "./pages/Campaigns";
 import Messages from "./pages/Messages";
@@ -46,6 +47,7 @@ const AppRoutes = () => (
         <Route path="/donors" element={<ProtectedRoute><Donors /></ProtectedRoute>} />
         <Route path="/donors/new" element={<ProtectedRoute><AddDonor /></ProtectedRoute>} />
         <Route path="/donors/:id/edit" element={<ProtectedRoute><EditDonor /></ProtectedRoute>} />
+        <Route path="/donated-individuals" element={<ProtectedRoute><DonatedIndividuals /></ProtectedRoute>} />
         <Route path="/blood-groups" element={<ProtectedRoute><BloodGroups /></ProtectedRoute>} />
         <Route path="/campaigns" element={<ProtectedRoute><Campaigns /></ProtectedRoute>} />
         <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />

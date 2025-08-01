@@ -20,15 +20,29 @@ CREATE TABLE sms_logs (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Create donations table to track blood donation records
+CREATE TABLE donations (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  donor_id UUID NOT NULL REFERENCES donors(id) ON DELETE CASCADE,
+  donation_date DATE NOT NULL,
+  location TEXT,
+  notes TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Create indexes for frequently queried columns
 CREATE INDEX idx_donors_blood_group ON donors(blood_group);
 CREATE INDEX idx_donors_province ON donors(province);
 CREATE INDEX idx_donors_district ON donors(district);
 CREATE INDEX idx_donors_municipality ON donors(municipality);
+CREATE INDEX idx_donations_donor_id ON donations(donor_id);
+CREATE INDEX idx_donations_donation_date ON donations(donation_date);
 
 -- Create RLS policies
 ALTER TABLE donors ENABLE ROW LEVEL SECURITY;
 ALTER TABLE sms_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE donations ENABLE ROW LEVEL SECURITY;
 
 -- Allow authenticated users to read all donors
 CREATE POLICY "Allow authenticated users to read donors" 
@@ -56,3 +70,20 @@ CREATE POLICY "Allow authenticated users to read SMS logs"
 CREATE POLICY "Allow authenticated users to insert SMS logs" 
   ON sms_logs FOR INSERT 
   WITH CHECK (auth.role() = 'authenticated');
+
+-- Allow authenticated users to manage donations
+CREATE POLICY "Allow authenticated users to read donations" 
+  ON donations FOR SELECT 
+  USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Allow authenticated users to insert donations" 
+  ON donations FOR INSERT 
+  WITH CHECK (auth.role() = 'authenticated');
+
+CREATE POLICY "Allow authenticated users to update donations" 
+  ON donations FOR UPDATE 
+  USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Allow authenticated users to delete donations" 
+  ON donations FOR DELETE 
+  USING (auth.role() = 'authenticated');

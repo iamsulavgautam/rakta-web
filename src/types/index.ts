@@ -19,6 +19,22 @@ export interface DonorFilters {
   municipality?: string;
 }
 
+export interface Donation {
+  id: string;
+  donor_id: string;
+  donation_date: string;
+  location?: string;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DonationWithDonor extends Donation {
+  donor: Donor;
+}
+
+export type DonationForm = Omit<Donation, 'id' | 'created_at' | 'updated_at'>;
+
 export interface DashboardStats {
   totalDonors: number;
   recentDonors: Donor[];

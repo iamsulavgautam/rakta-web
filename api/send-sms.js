@@ -17,12 +17,17 @@ module.exports = async function handler(req, res) {
   const accountSid = process.env.TWILIO_ACCOUNT_SID;
   const authToken = process.env.TWILIO_AUTH_TOKEN;
   const fromPhone = process.env.TWILIO_PHONE_NUMBER;
+  const serviceSid = process.env.TWILIO_SERVICE_SID;
 
   // Validate that all required environment variables are present
-  if (!accountSid || !authToken || !fromPhone) {
-    console.error("Missing Twilio environment variables");
-    return res.status(500).json({ 
-      error: "Server configuration error - missing Twilio credentials" 
+  if (!accountSid || !authToken || (!fromPhone && !serviceSid)) {
+    console.error(
+      "Twilio configuration is incomplete. Please check your environment variables"
+    );
+    return res.status(500).json({
+      success: false,
+      error:
+        "Twilio configuration is incomplete. Please check your environment variables",
     });
   }
 
@@ -38,7 +43,11 @@ module.exports = async function handler(req, res) {
 
   const form = new URLSearchParams();
   form.append("To", to.startsWith("+") ? to : `+${to}`);
-  form.append("From", fromPhone);
+  if (serviceSid) {
+    form.append("MessagingServiceSid", serviceSid);
+  } else {
+    form.append("From", fromPhone);
+  }
   form.append("Body", message);
 
   try {
@@ -68,4 +77,4 @@ module.exports = async function handler(req, res) {
       .status(500)
       .json({ success: false, error: "Failed to send SMS" });
   }
-}
+};

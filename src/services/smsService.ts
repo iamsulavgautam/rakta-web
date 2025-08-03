@@ -1,5 +1,6 @@
 import { DonorFilters } from "@/types";
 import { fetchDonors } from "./donorService";
+import { fetchDonorsWithLastDonation } from "./donationService";
 
 // Twilio credentials from environment variables
 const TWILIO_SERVICE_SID = import.meta.env.VITE_TWILIO_SERVICE_SID;
@@ -97,14 +98,44 @@ export const sendSMS = async (
 
 export const sendSMSToFilteredDonors = async (
   filters: DonorFilters,
-  message: string
+  message: string,
+  onlyEligible: boolean = true
 ): Promise<SMSResponse> => {
   try {
-    // Fetch donors based on filters
-    const donors = await fetchDonors(filters);
+    let donors;
+    
+    if (onlyEligible) {
+      // Fetch donors with eligibility information
+      const donorsWithEligibility = await fetchDonorsWithLastDonation();
+      
+      // Filter by provided filters
+      donors = donorsWithEligibility.filter((donor) => {
+        // Apply filters
+        if (filters.blood_group && filters.blood_group !== "all" && donor.blood_group !== filters.blood_group) {
+          return false;
+        }
+        if (filters.province && filters.province !== "all" && donor.province !== filters.province) {
+          return false;
+        }
+        if (filters.district && filters.district !== "all" && donor.district !== filters.district) {
+          return false;
+        }
+        if (filters.municipality && filters.municipality !== "all" && donor.municipality !== filters.municipality) {
+          return false;
+        }
+        
+        // Only include eligible donors
+        return donor.is_eligible;
+      });
+    } else {
+      // Fetch donors based on filters without eligibility check
+      donors = await fetchDonors(filters);
+    }
 
     // Extract phone numbers
     const phoneNumbers = donors.map((donor) => donor.phone);
+
+    console.log(`Sending SMS to ${phoneNumbers.length} ${onlyEligible ? 'eligible ' : ''}donors`);
 
     // Send SMS to all phone numbers
     return await sendSMS(phoneNumbers, message);

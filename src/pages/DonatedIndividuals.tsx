@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { format } from "date-fns";
-import { Calendar, DropletIcon, Plus, UserCheck, UserX, Upload } from "lucide-react";
+import { Calendar, DropletIcon, Plus, UserCheck, UserX, Upload, History } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import BulkDonationUpload from "@/components/donations/BulkDonationUpload";
+import DonationHistoryDialog from "@/components/donations/DonationHistoryDialog";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -59,6 +60,8 @@ export default function DonatedIndividuals() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [showBulkUpload, setShowBulkUpload] = useState(false);
   const [selectedDonor, setSelectedDonor] = useState<Donor | null>(null);
+  const [historyDialogOpen, setHistoryDialogOpen] = useState(false);
+  const [historyDonor, setHistoryDonor] = useState<Donor | null>(null);
   const [donationForm, setDonationForm] = useState<DonationForm>({
     donor_id: "",
     donation_date: "",
@@ -124,6 +127,11 @@ export default function DonatedIndividuals() {
       notes: "",
     });
     setIsDialogOpen(true);
+  };
+
+  const handleViewHistory = (donor: Donor) => {
+    setHistoryDonor(donor);
+    setHistoryDialogOpen(true);
   };
 
   const handleSubmitDonation = async () => {
@@ -309,15 +317,25 @@ export default function DonatedIndividuals() {
                       <TableCell>
                         {getEligibilityBadge(donor.is_eligible, donor.last_donation_date)}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right space-x-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleViewHistory(donor)}
+                          className="h-8"
+                        >
+                          <History className="h-4 w-4 mr-1" />
+                          History
+                        </Button>
                         <Button
                           size="sm"
                           onClick={() => handleAddDonation(donor)}
                           disabled={!donor.is_eligible && !!donor.last_donation_date}
                           variant={donor.is_eligible || !donor.last_donation_date ? "default" : "secondary"}
+                          className="h-8"
                         >
                           <Plus className="h-4 w-4 mr-1" />
-                          Add Donation
+                          Add
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -382,6 +400,14 @@ export default function DonatedIndividuals() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Donation History Dialog */}
+        <DonationHistoryDialog
+          donor={historyDonor}
+          isOpen={historyDialogOpen}
+          onClose={() => setHistoryDialogOpen(false)}
+          onDonationDeleted={loadDonors}
+        />
       </div>
     </DashboardLayout>
   );
